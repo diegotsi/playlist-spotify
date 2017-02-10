@@ -37,6 +37,7 @@
     </div>
     
      <script id="user-followers-template" type="text/x-handlebars-template">
+        <button onclick="criaPlaylist()">Criar Playlist</button>
         <div class="row">
           <div class="col s6">
             <h1>Seguidores</h1>
@@ -94,8 +95,8 @@
       </div>
     </script>
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
-    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
       (function() {
         /**
@@ -111,6 +112,8 @@
           }
           return hashParams;
         }
+
+      
         var userProfileSource = document.getElementById('user-profile-template').innerHTML,
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
@@ -131,29 +134,23 @@
         } else {
           if (access_token) {
 
-            // Renderizando dados do usuário
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-                  $('#login').hide();
-                  $('#loggedin').show();
-                }
-            });
 
-            // Renderizando lista de artistas que o usuário segue
             $.ajax({
-                url: 'https://api.spotify.com/v1/me/following?type=artist',
+                url: 'https://api.spotify.com/v1/users/diegotsi/playlists',
+                type: 'POST',
+                 data: JSON.stringify({
+                  'name': 'Diegooo',
+                  'public': false
+                }),
                 headers: {
-                  'Authorization': 'Bearer ' + access_token
+                  'Authorization': 'Bearer ' + access_token,
+                  'Content-Type' : 'application/json'
                 },
                 success: function(response) {
-                  followersPlaceholder.innerHTML +=followerSourceTemplate(response)
-                  $('#login').hide();
-                  $('#loggedin').show();
+                 console.log('Playlist Criada com sucesso')
+                },
+                error: function(response){
+                  console.log(response.responseText);
                 }
             });
 
@@ -194,7 +191,6 @@
         }
       })();
     </script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
   </body>
 </html>
