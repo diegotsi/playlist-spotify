@@ -134,12 +134,34 @@
         } else {
           if (access_token) {
 
+            //Adiciona músicas a determinada Playlist :D
+            /*
+            $.ajax({
+                url: 'https://api.spotify.com/v1/users/diegotsi/playlists/6n0V2FNNNb9opGpcjc8Fpi/tracks',
+                type: 'POST',
+                data:
+                JSON.stringify({"uris": ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh","spotify:track:1301WleyT98MSxVHPZCA6M"]}),
+                headers: {
+                  'Authorization': 'Bearer ' + access_token,
+                  'Content-Type': 'application/json'
+                },
+                success: function(response) {
+                 console.log('Músicas adicionadas com sucesso');
+                 console.log(response);
+                },
+                error: function(response){
+                  console.log(response.responseText);
+                }
+            });
+            */
 
+            // Cria uma playlist 
+            /*
             $.ajax({
                 url: 'https://api.spotify.com/v1/users/diegotsi/playlists',
                 type: 'POST',
                  data: JSON.stringify({
-                  'name': 'Diegooo',
+                  'name': 'Diegooo2',
                   'public': false
                 }),
                 headers: {
@@ -153,7 +175,9 @@
                   console.log(response.responseText);
                 }
             });
+            */
 
+            // Obtém todas as playlists
            /* $.ajax({
                 url: 'https://api.spotify.com/v1/me/playlists',
                 headers: {
@@ -166,6 +190,32 @@
                 }
             });
             */
+
+          // Obtém todos os seguidores do usuário
+          $.ajax({
+                url: 'https://api.spotify.com/v1/me/following?type=artist',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(response) {
+                  followersPlaceholder.innerHTML +=followerSourceTemplate(response)
+                  $('#login').hide();
+                  $('#loggedin').show();
+                }
+          });
+
+          $.ajax({
+            url: 'https://api.spotify.com/v1/me',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+                  userProfilePlaceholder.innerHTML +=userProfileTemplate(response)
+                  $('#login').hide();
+                  $('#loggedin').show();
+            }
+          });
+          
           
           } else {
               // renderizando tela inicial
