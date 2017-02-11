@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/materialize.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <meta name=”viewport” content=”width=device-width, initial-scale=1″>
   </head>
 
   <body>
@@ -32,7 +33,11 @@
           <input placeholder="Digite os artistas" id="artist" type="text" class="validate">
           <label for="first_name">Artistas</label>
         </div>
-        <button onclick="criaPlaylist()"class="waves-effect waves-light btn">Criar Playlist</button>
+        <ul id="artistas-selecionados">
+        </ul>
+        <div class="limpar">
+        </div>
+        <button onclick="criaPlaylist()" class="waves-effect waves-light btn">Criar Playlist</button>
         <div class="row">
           <div class="col s6">
             <h1>Seguidores</h1>
@@ -93,10 +98,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
-        /*$(document).on('keyup', '#artist', function(e) {
-          alert(e.which);
+        $(document).on('keyup', '#artist', function(e) {
+          var nome;
+          if(e.which==188){
+            nome = $('#artist').val().split(',')[0];
+            $('#artistas-selecionados').append('<li>'+nome+'</li>');
+            $('#artist').val('');
+          }
         });
-        */
+        
 
         function getHashParams() {
           var hashParams = {};
@@ -108,7 +118,7 @@
           return hashParams;
         }
 
-          var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
 
@@ -123,7 +133,12 @@
             error = params.error;
 
         function criaPlaylist(){
-          var separar = $('#artist').val().split(',');
+          var separar = [];
+          $('#artistas-selecionados li').each(function(i)
+          {
+              separar.push($(this).text());
+          });
+          console.log(separar[0]);
           var uriMusicas = obterIdsMusicas(obterIdsArtistas(separar));
           var playlistId;
 

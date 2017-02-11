@@ -11,3 +11,18 @@ nav{
 	background-color:#1de9b6;
 	
 }
+
+ul#artistas-selecionados li{
+	float: left;
+	background-color: #efefef;
+	padding: 10px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #ddd;
+	text-transform: uppercase;
+	margin-right: 5px;
+}
+
+.limpar{
+	clear: both;
+}
