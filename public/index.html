@@ -1,20 +1,11 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>Gerador de Playlists Spotify</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/materialize.min.css">
-    <style type="text/css">
-      #login, #loggedin {
-        display: none;
-      }
-      .text-overflow {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: 500px;
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
   </head>
 
   <body>
@@ -37,7 +28,11 @@
     </div>
     
      <script id="user-followers-template" type="text/x-handlebars-template">
-        <button onclick="criaPlaylist()">Criar Playlist</button>
+         <div class="input-field col s6">
+          <input placeholder="Digite os artistas" id="artist" type="text" class="validate">
+          <label for="first_name">Artistas</label>
+        </div>
+        <button onclick="criaPlaylist()"class="waves-effect waves-light btn">Criar Playlist</button>
         <div class="row">
           <div class="col s6">
             <h1>Seguidores</h1>
@@ -76,14 +71,14 @@
     </script>
 
     <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logado como {{display_name}}</h1>
+      <h1>Logado como {{id}}</h1>
       <div class="media">
         <div class="pull-left">
           <img class="media-object" width="150" src="{{images.0.url}}" />
         </div>
         <div class="media-body">
           <dl class="dl-horizontal">
-            <dt>Total de seguidores</dt><dd class="clearfix">{{followers.total}}</dd>
+            <dt>Total de seguidores</dt><dd>{{followers.total}}</dd>
             <dt>Id</dt><dd>{{id}}</dd>
             <dt>Email</dt><dd>{{email}}</dd>
             <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
@@ -98,11 +93,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
-      (function() {
-        /**
-         * Obtains parameters from the hash of the URL
-         * @return Object
-         */
+        /*$(document).on('keyup', '#artist', function(e) {
+          alert(e.which);
+        });
+        */
+
         function getHashParams() {
           var hashParams = {};
           var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -113,8 +108,7 @@
           return hashParams;
         }
 
-      
-        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+          var userProfileSource = document.getElementById('user-profile-template').innerHTML,
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
 
@@ -128,40 +122,17 @@
             refresh_token = params.refresh_token,
             error = params.error;
 
+        function criaPlaylist(){
+          var separar = $('#artist').val().split(',');
+          var uriMusicas = obterIdsMusicas(obterIdsArtistas(separar));
+          var playlistId;
 
-        if (error) {
-          alert('There was an error during the ');
-        } else {
-          if (access_token) {
-
-            //Adiciona músicas a determinada Playlist :D
-            /*
-            $.ajax({
-                url: 'https://api.spotify.com/v1/users/diegotsi/playlists/6n0V2FNNNb9opGpcjc8Fpi/tracks',
-                type: 'POST',
-                data:
-                JSON.stringify({"uris": ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh","spotify:track:1301WleyT98MSxVHPZCA6M"]}),
-                headers: {
-                  'Authorization': 'Bearer ' + access_token,
-                  'Content-Type': 'application/json'
-                },
-                success: function(response) {
-                 console.log('Músicas adicionadas com sucesso');
-                 console.log(response);
-                },
-                error: function(response){
-                  console.log(response.responseText);
-                }
-            });
-            */
-
-            // Cria uma playlist 
-            /*
-            $.ajax({
+          //Chamada para criar playlist
+          $.ajax({
                 url: 'https://api.spotify.com/v1/users/diegotsi/playlists',
                 type: 'POST',
                  data: JSON.stringify({
-                  'name': 'Diegooo2',
+                  'name': 'Minhas <3 Favortias',
                   'public': false
                 }),
                 headers: {
@@ -170,27 +141,118 @@
                 },
                 success: function(response) {
                  console.log('Playlist Criada com sucesso')
+                 playlisId = response.id;
                 },
                 error: function(response){
                   console.log(response.responseText);
-                }
-            });
-            */
-
-            // Obtém todas as playlists
-           /* $.ajax({
-                url: 'https://api.spotify.com/v1/me/playlists',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
                 },
-                success: function(response) {
-                  followersPlaceholder.innerHTML +=followerSourceTemplate(response)
-                  $('#login').hide();
-                  $('#loggedin').show();
-                }
-            });
-            */
+                async: false
+          });
 
+          // Chamadas que vai adicionar músicas na playlist
+          $.ajax({
+              url: 'https://api.spotify.com/v1/users/'+obterDadosUsuario()+'/playlists/'+playlisId+'/tracks',
+              type: 'POST',
+              data:
+              JSON.stringify({"uris": uriMusicas}),
+              headers: {
+                'Authorization': 'Bearer ' + access_token,
+                'Content-Type': 'application/json'
+              },
+              success: function(response) {
+               console.log('Músicas adicionadas com sucesso');
+               console.log(response);
+              },
+              error: function(response){
+                console.log(response.responseText);
+              },
+              async: false
+          });
+
+
+        }
+
+        // Obtém um array com as ids dos artistas
+        function obterIdsArtistas(artistas){
+          var listaIds = []; 
+          for(i=0;i<artistas.length;i++){
+            $.ajax({
+                  url: 'https://api.spotify.com/v1/search?q='+artistas[i]+'&type=artist&limit=1',
+                  type: 'GET',
+                  headers: {
+                    'Authorization': 'Bearer ' + access_token,
+                  },
+                  success: function(response) {
+                   console.log('Artista encontrado');
+                   listaIds.push(response.artists.items[0].id);
+                  },
+                  error: function(response){
+                    console.log(response.responseText);
+                  },
+                  async: false
+            });
+          }
+          return listaIds;
+        }
+
+        // Retorna um array com as uris das músicas que serão adicionadas em uma playlist
+        function obterIdsMusicas(listaIdsArtistas){
+          var listaIds = [];
+          for(i=0;i<listaIdsArtistas.length;i++){
+            $.ajax({
+              url:'https://api.spotify.com/v1/artists/'+listaIdsArtistas[i]+'/top-tracks?country=BR',
+              type: 'GET',
+              headers: {
+                    'Authorization': 'Bearer ' + access_token,
+                  },
+                  success: function(response) {
+                   console.log(response);
+                   listaIds.push(response.tracks[0].uri);
+                   listaIds.push(response.tracks[1].uri);
+                   listaIds.push(response.tracks[2].uri);
+                   listaIds.push(response.tracks[3].uri);
+                   listaIds.push(response.tracks[4].uri);
+                   console.log('Música Encontrada');
+                  },
+                  error: function(response){
+                    console.log(response.responseText);
+                  },
+                  async: false
+
+            });
+          }
+          return listaIds;
+        }
+
+        function obterDadosUsuario(){
+          var idUsuario = '';
+          $.ajax({
+              url: 'https://api.spotify.com/v1/me',
+              headers: {
+                'Authorization': 'Bearer ' + access_token
+              },
+              success: function(response) {
+                    idUsuario = response.id;
+              },
+              async:false
+            });
+          return idUsuario;
+        }
+        if (error) {
+          alert('There was an error during the ');
+        } else {
+          if (access_token) {
+           $.ajax({
+              url: 'https://api.spotify.com/v1/me',
+              headers: {
+                'Authorization': 'Bearer ' + access_token
+              },
+              success: function(response) {
+                    userProfilePlaceholder.innerHTML +=userProfileTemplate(response)
+                    $('#login').hide();
+                    $('#loggedin').show();
+              }
+            });
           // Obtém todos os seguidores do usuário
           $.ajax({
                 url: 'https://api.spotify.com/v1/me/following?type=artist',
@@ -204,18 +266,6 @@
                 }
           });
 
-          $.ajax({
-            url: 'https://api.spotify.com/v1/me',
-            headers: {
-              'Authorization': 'Bearer ' + access_token
-            },
-            success: function(response) {
-                  userProfilePlaceholder.innerHTML +=userProfileTemplate(response)
-                  $('#login').hide();
-                  $('#loggedin').show();
-            }
-          });
-          
           
           } else {
               // renderizando tela inicial
@@ -239,7 +289,6 @@
             });
           }, false);
         }
-      })();
     </script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
   </body>
