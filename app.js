@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 
 var client_id = '4cecaaf7795b44288d75e1243abb0686';
 var client_secret = '6e89f251e25a4f5db4a2efdf9e61d30a'; 
-var redirect_uri = 'http://localhost:8888/callback/'; 
+var redirect_uri = 'https://spotify-api-d.herokuapp.com/callback/'; 
 
 
 var generateRandomString = function(length) {
